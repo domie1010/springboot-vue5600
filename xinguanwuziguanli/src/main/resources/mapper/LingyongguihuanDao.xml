@@ -1,0 +1,146 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.dao.LingyongguihuanDao">
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        a.id as id
+        ,a.wuzi_id as wuziId
+        ,a.xiaoquguanli_id as xiaoquguanliId
+        ,a.lingyongguihuan_types as lingyongguihuanTypes
+        ,a.lingyongguihuan_number as lingyongguihuanNumber
+        ,a.lingyongguihuan_content as lingyongguihuanContent
+        ,a.insert_time as insertTime
+        ,a.create_time as createTime
+    </sql>
+    <select id="selectListView" parameterType="map" resultType="com.entity.view.LingyongguihuanView" >
+        SELECT
+        <include refid="Base_Column_List" />
+        <!-- 级联表的字段 -->
+        ,wuzi.wuzi_uuid_number as wuziUuidNumber
+        ,wuzi.wuzi_name as wuziName
+        ,wuzi.wuzi_types as wuziTypes
+        ,wuzi.wuzi_kucun_number as wuziKucunNumber
+        ,wuzi.wuzi_content as wuziContent
+        ,wuzi.wuzi_delete as wuziDelete
+        ,xiaoquguanli.xiaoquguanli_name as xiaoquguanliName
+        ,xiaoquguanli.xiaoquguanli_photo as xiaoquguanliPhoto
+        ,xiaoquguanli.xiaoquguanli_phone as xiaoquguanliPhone
+        ,xiaoquguanli.xiaoquguanli_id_number as xiaoquguanliIdNumber
+        ,xiaoquguanli.xiaoquguanli_email as xiaoquguanliEmail
+        ,xiaoquguanli.xiaoquguanli_delete as xiaoquguanliDelete
+
+        FROM lingyongguihuan  a
+        left JOIN wuzi wuzi ON a.wuzi_id = wuzi.id
+        left JOIN xiaoquguanli xiaoquguanli ON a.xiaoquguanli_id = xiaoquguanli.id
+
+        <where>
+            <if test="params.ids != null">
+                and a.id in
+                <foreach item="item" index="index" collection="params.ids" open="(" separator="," close=")">
+                #{item}
+                </foreach>
+            </if>
+            <if test="params.wuziId != null and params.wuziId != ''">
+                and (
+                    a.wuzi_id = #{params.wuziId}
+                )
+            </if>
+            <if test="params.xiaoquguanliId != null and params.xiaoquguanliId != ''">
+                and (
+                    a.xiaoquguanli_id = #{params.xiaoquguanliId}
+                )
+            </if>
+            <if test="params.lingyongguihuanTypes != null and params.lingyongguihuanTypes != ''">
+                and a.lingyongguihuan_types = #{params.lingyongguihuanTypes}
+            </if>
+            <if test="params.lingyongguihuanNumberStart != null and params.lingyongguihuanNumberStart != ''">
+                <![CDATA[  and a.lingyongguihuan_number >= #{params.lingyongguihuanNumberStart}   ]]>
+            </if>
+            <if test="params.lingyongguihuanNumberEnd != null and params.lingyongguihuanNumberEnd != ''">
+                <![CDATA[  and a.lingyongguihuan_number <= #{params.lingyongguihuanNumberEnd}   ]]>
+            </if>
+             <if test="params.lingyongguihuanNumber != null and params.lingyongguihuanNumber != ''">
+                and a.lingyongguihuan_number = #{params.lingyongguihuanNumber}
+             </if>
+            <if test=" params.lingyongguihuanContent != '' and params.lingyongguihuanContent != null and params.lingyongguihuanContent != 'null' ">
+                and a.lingyongguihuan_content like CONCAT('%',#{params.lingyongguihuanContent},'%')
+            </if>
+            <if test=" params.insertTimeStart != '' and params.insertTimeStart != null ">
+                <![CDATA[  and UNIX_TIMESTAMP(a.insert_time) >= UNIX_TIMESTAMP(#{params.insertTimeStart}) ]]>
+            </if>
+            <if test=" params.insertTimeEnd != '' and params.insertTimeEnd != null ">
+                <![CDATA[  and UNIX_TIMESTAMP(a.insert_time) <= UNIX_TIMESTAMP(#{params.insertTimeEnd}) ]]>
+            </if>
+
+                <!-- 判断物资的id不为空 -->
+            <if test=" params.wuziIdNotNull != '' and params.wuziIdNotNull != null and params.wuziIdNotNull != 'null' ">
+                and a.wuzi_id IS NOT NULL
+            </if>
+            <if test=" params.wuziUuidNumber != '' and params.wuziUuidNumber != null and params.wuziUuidNumber != 'null' ">
+                and wuzi.wuzi_uuid_number like CONCAT('%',#{params.wuziUuidNumber},'%')
+            </if>
+            <if test=" params.wuziName != '' and params.wuziName != null and params.wuziName != 'null' ">
+                and wuzi.wuzi_name like CONCAT('%',#{params.wuziName},'%')
+            </if>
+            <if test="params.wuziTypes != null  and params.wuziTypes != ''">
+                and wuzi.wuzi_types = #{params.wuziTypes}
+            </if>
+
+            <if test="params.wuziKucunNumberStart != null  and params.wuziKucunNumberStart != '' ">
+                <![CDATA[  and wuzi.wuzi_kucun_number >= #{params.wuziKucunNumberStart}   ]]>
+            </if>
+            <if test="params.wuziKucunNumberEnd != null  and params.wuziKucunNumberEnd != '' ">
+                <![CDATA[  and wuzi.wuzi_kucun_number <= #{params.wuziKucunNumberEnd}   ]]>
+            </if>
+            <if test="params.wuziKucunNumber != null  and params.wuziKucunNumber != '' ">
+                and wuzi.wuzi_kucun_number = #{params.wuziKucunNumber}
+            </if>
+            <if test=" params.wuziContent != '' and params.wuziContent != null and params.wuziContent != 'null' ">
+                and wuzi.wuzi_content like CONCAT('%',#{params.wuziContent},'%')
+            </if>
+            <if test="params.wuziDeleteStart != null  and params.wuziDeleteStart != '' ">
+                <![CDATA[  and wuzi.wuzi_delete >= #{params.wuziDeleteStart}   ]]>
+            </if>
+            <if test="params.wuziDeleteEnd != null  and params.wuziDeleteEnd != '' ">
+                <![CDATA[  and wuzi.wuzi_delete <= #{params.wuziDeleteEnd}   ]]>
+            </if>
+            <if test="params.wuziDelete != null  and params.wuziDelete != '' ">
+                and wuzi.wuzi_delete = #{params.wuziDelete}
+            </if>
+            <if test=" params.insertTimeStart != '' and params.insertTimeStart != null ">
+                <![CDATA[  and UNIX_TIMESTAMP(wuzi.insert_time) >= UNIX_TIMESTAMP(#{params.insertTimeStart}) ]]>
+            </if>
+            <if test=" params.insertTimeEnd != '' and params.insertTimeEnd != null ">
+                <![CDATA[  and UNIX_TIMESTAMP(wuzi.insert_time) <= UNIX_TIMESTAMP(#{params.insertTimeEnd}) ]]>
+            </if>
+                <!-- 判断小区管理员的id不为空 -->
+            <if test=" params.xiaoquguanliIdNotNull != '' and params.xiaoquguanliIdNotNull != null and params.xiaoquguanliIdNotNull != 'null' ">
+                and a.xiaoquguanli_id IS NOT NULL
+            </if>
+            <if test=" params.xiaoquguanliName != '' and params.xiaoquguanliName != null and params.xiaoquguanliName != 'null' ">
+                and xiaoquguanli.xiaoquguanli_name like CONCAT('%',#{params.xiaoquguanliName},'%')
+            </if>
+            <if test=" params.xiaoquguanliPhone != '' and params.xiaoquguanliPhone != null and params.xiaoquguanliPhone != 'null' ">
+                and xiaoquguanli.xiaoquguanli_phone like CONCAT('%',#{params.xiaoquguanliPhone},'%')
+            </if>
+            <if test=" params.xiaoquguanliIdNumber != '' and params.xiaoquguanliIdNumber != null and params.xiaoquguanliIdNumber != 'null' ">
+                and xiaoquguanli.xiaoquguanli_id_number like CONCAT('%',#{params.xiaoquguanliIdNumber},'%')
+            </if>
+            <if test=" params.xiaoquguanliEmail != '' and params.xiaoquguanliEmail != null and params.xiaoquguanliEmail != 'null' ">
+                and xiaoquguanli.xiaoquguanli_email like CONCAT('%',#{params.xiaoquguanliEmail},'%')
+            </if>
+            <if test="params.xiaoquguanliDeleteStart != null  and params.xiaoquguanliDeleteStart != '' ">
+                <![CDATA[  and xiaoquguanli.xiaoquguanli_delete >= #{params.xiaoquguanliDeleteStart}   ]]>
+            </if>
+            <if test="params.xiaoquguanliDeleteEnd != null  and params.xiaoquguanliDeleteEnd != '' ">
+                <![CDATA[  and xiaoquguanli.xiaoquguanli_delete <= #{params.xiaoquguanliDeleteEnd}   ]]>
+            </if>
+            <if test="params.xiaoquguanliDelete != null  and params.xiaoquguanliDelete != '' ">
+                and xiaoquguanli.xiaoquguanli_delete = #{params.xiaoquguanliDelete}
+            </if>
+        </where>
+        order by a.${params.sort} ${params.order}
+    </select>
+
+</mapper>

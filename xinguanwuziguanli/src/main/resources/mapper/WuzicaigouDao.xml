@@ -1,0 +1,161 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.dao.WuzicaigouDao">
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        a.id as id
+        ,a.wuzi_id as wuziId
+        ,a.yonghu_id as yonghuId
+        ,a.wuzicaigou_number as wuzicaigouNumber
+        ,a.wuzicaigou_time as wuzicaigouTime
+        ,a.wuzicaigou_text as wuzicaigouText
+        ,a.wuzicaigou_yesno_types as wuzicaigouYesnoTypes
+        ,a.wuzicaigou_yesno_text as wuzicaigouYesnoText
+        ,a.insert_time as insertTime
+        ,a.create_time as createTime
+    </sql>
+    <select id="selectListView" parameterType="map" resultType="com.entity.view.WuzicaigouView" >
+        SELECT
+        <include refid="Base_Column_List" />
+        <!-- 级联表的字段 -->
+        ,wuzi.wuzi_uuid_number as wuziUuidNumber
+        ,wuzi.wuzi_name as wuziName
+        ,wuzi.wuzi_types as wuziTypes
+        ,wuzi.wuzi_kucun_number as wuziKucunNumber
+        ,wuzi.wuzi_content as wuziContent
+        ,wuzi.wuzi_delete as wuziDelete
+        ,yonghu.yonghu_name as yonghuName
+        ,yonghu.yonghu_photo as yonghuPhoto
+        ,yonghu.yonghu_phone as yonghuPhone
+        ,yonghu.yonghu_id_number as yonghuIdNumber
+        ,yonghu.yonghu_email as yonghuEmail
+        ,yonghu.yonghu_danwei as yonghuDanwei
+        ,yonghu.yonghu_delete as yonghuDelete
+
+        FROM wuzicaigou  a
+        left JOIN wuzi wuzi ON a.wuzi_id = wuzi.id
+        left JOIN yonghu yonghu ON a.yonghu_id = yonghu.id
+
+        <where>
+            <if test="params.ids != null">
+                and a.id in
+                <foreach item="item" index="index" collection="params.ids" open="(" separator="," close=")">
+                #{item}
+                </foreach>
+            </if>
+            <if test="params.wuziId != null and params.wuziId != ''">
+                and (
+                    a.wuzi_id = #{params.wuziId}
+                )
+            </if>
+            <if test="params.yonghuId != null and params.yonghuId != ''">
+                and (
+                    a.yonghu_id = #{params.yonghuId}
+                )
+            </if>
+            <if test="params.wuzicaigouNumberStart != null and params.wuzicaigouNumberStart != ''">
+                <![CDATA[  and a.wuzicaigou_number >= #{params.wuzicaigouNumberStart}   ]]>
+            </if>
+            <if test="params.wuzicaigouNumberEnd != null and params.wuzicaigouNumberEnd != ''">
+                <![CDATA[  and a.wuzicaigou_number <= #{params.wuzicaigouNumberEnd}   ]]>
+            </if>
+             <if test="params.wuzicaigouNumber != null and params.wuzicaigouNumber != ''">
+                and a.wuzicaigou_number = #{params.wuzicaigouNumber}
+             </if>
+            <if test=" params.wuzicaigouTimeStart != '' and params.wuzicaigouTimeStart != null ">
+                <![CDATA[  and UNIX_TIMESTAMP(a.wuzicaigou_time) >= UNIX_TIMESTAMP(#{params.wuzicaigouTimeStart}) ]]>
+            </if>
+            <if test=" params.wuzicaigouTimeEnd != '' and params.wuzicaigouTimeEnd != null ">
+                <![CDATA[  and UNIX_TIMESTAMP(a.wuzicaigou_time) <= UNIX_TIMESTAMP(#{params.wuzicaigouTimeEnd}) ]]>
+            </if>
+            <if test=" params.wuzicaigouText != '' and params.wuzicaigouText != null and params.wuzicaigouText != 'null' ">
+                and a.wuzicaigou_text like CONCAT('%',#{params.wuzicaigouText},'%')
+            </if>
+            <if test="params.wuzicaigouYesnoTypes != null and params.wuzicaigouYesnoTypes != ''">
+                and a.wuzicaigou_yesno_types = #{params.wuzicaigouYesnoTypes}
+            </if>
+            <if test=" params.wuzicaigouYesnoText != '' and params.wuzicaigouYesnoText != null and params.wuzicaigouYesnoText != 'null' ">
+                and a.wuzicaigou_yesno_text like CONCAT('%',#{params.wuzicaigouYesnoText},'%')
+            </if>
+            <if test=" params.insertTimeStart != '' and params.insertTimeStart != null ">
+                <![CDATA[  and UNIX_TIMESTAMP(a.insert_time) >= UNIX_TIMESTAMP(#{params.insertTimeStart}) ]]>
+            </if>
+            <if test=" params.insertTimeEnd != '' and params.insertTimeEnd != null ">
+                <![CDATA[  and UNIX_TIMESTAMP(a.insert_time) <= UNIX_TIMESTAMP(#{params.insertTimeEnd}) ]]>
+            </if>
+
+                <!-- 判断物资的id不为空 -->
+            <if test=" params.wuziIdNotNull != '' and params.wuziIdNotNull != null and params.wuziIdNotNull != 'null' ">
+                and a.wuzi_id IS NOT NULL
+            </if>
+            <if test=" params.wuziUuidNumber != '' and params.wuziUuidNumber != null and params.wuziUuidNumber != 'null' ">
+                and wuzi.wuzi_uuid_number like CONCAT('%',#{params.wuziUuidNumber},'%')
+            </if>
+            <if test=" params.wuziName != '' and params.wuziName != null and params.wuziName != 'null' ">
+                and wuzi.wuzi_name like CONCAT('%',#{params.wuziName},'%')
+            </if>
+            <if test="params.wuziTypes != null  and params.wuziTypes != ''">
+                and wuzi.wuzi_types = #{params.wuziTypes}
+            </if>
+
+            <if test="params.wuziKucunNumberStart != null  and params.wuziKucunNumberStart != '' ">
+                <![CDATA[  and wuzi.wuzi_kucun_number >= #{params.wuziKucunNumberStart}   ]]>
+            </if>
+            <if test="params.wuziKucunNumberEnd != null  and params.wuziKucunNumberEnd != '' ">
+                <![CDATA[  and wuzi.wuzi_kucun_number <= #{params.wuziKucunNumberEnd}   ]]>
+            </if>
+            <if test="params.wuziKucunNumber != null  and params.wuziKucunNumber != '' ">
+                and wuzi.wuzi_kucun_number = #{params.wuziKucunNumber}
+            </if>
+            <if test=" params.wuziContent != '' and params.wuziContent != null and params.wuziContent != 'null' ">
+                and wuzi.wuzi_content like CONCAT('%',#{params.wuziContent},'%')
+            </if>
+            <if test="params.wuziDeleteStart != null  and params.wuziDeleteStart != '' ">
+                <![CDATA[  and wuzi.wuzi_delete >= #{params.wuziDeleteStart}   ]]>
+            </if>
+            <if test="params.wuziDeleteEnd != null  and params.wuziDeleteEnd != '' ">
+                <![CDATA[  and wuzi.wuzi_delete <= #{params.wuziDeleteEnd}   ]]>
+            </if>
+            <if test="params.wuziDelete != null  and params.wuziDelete != '' ">
+                and wuzi.wuzi_delete = #{params.wuziDelete}
+            </if>
+            <if test=" params.insertTimeStart != '' and params.insertTimeStart != null ">
+                <![CDATA[  and UNIX_TIMESTAMP(wuzi.insert_time) >= UNIX_TIMESTAMP(#{params.insertTimeStart}) ]]>
+            </if>
+            <if test=" params.insertTimeEnd != '' and params.insertTimeEnd != null ">
+                <![CDATA[  and UNIX_TIMESTAMP(wuzi.insert_time) <= UNIX_TIMESTAMP(#{params.insertTimeEnd}) ]]>
+            </if>
+                <!-- 判断采购员的id不为空 -->
+            <if test=" params.yonghuIdNotNull != '' and params.yonghuIdNotNull != null and params.yonghuIdNotNull != 'null' ">
+                and a.yonghu_id IS NOT NULL
+            </if>
+            <if test=" params.yonghuName != '' and params.yonghuName != null and params.yonghuName != 'null' ">
+                and yonghu.yonghu_name like CONCAT('%',#{params.yonghuName},'%')
+            </if>
+            <if test=" params.yonghuPhone != '' and params.yonghuPhone != null and params.yonghuPhone != 'null' ">
+                and yonghu.yonghu_phone like CONCAT('%',#{params.yonghuPhone},'%')
+            </if>
+            <if test=" params.yonghuIdNumber != '' and params.yonghuIdNumber != null and params.yonghuIdNumber != 'null' ">
+                and yonghu.yonghu_id_number like CONCAT('%',#{params.yonghuIdNumber},'%')
+            </if>
+            <if test=" params.yonghuEmail != '' and params.yonghuEmail != null and params.yonghuEmail != 'null' ">
+                and yonghu.yonghu_email like CONCAT('%',#{params.yonghuEmail},'%')
+            </if>
+            <if test=" params.yonghuDanwei != '' and params.yonghuDanwei != null and params.yonghuDanwei != 'null' ">
+                and yonghu.yonghu_danwei like CONCAT('%',#{params.yonghuDanwei},'%')
+            </if>
+            <if test="params.yonghuDeleteStart != null  and params.yonghuDeleteStart != '' ">
+                <![CDATA[  and yonghu.yonghu_delete >= #{params.yonghuDeleteStart}   ]]>
+            </if>
+            <if test="params.yonghuDeleteEnd != null  and params.yonghuDeleteEnd != '' ">
+                <![CDATA[  and yonghu.yonghu_delete <= #{params.yonghuDeleteEnd}   ]]>
+            </if>
+            <if test="params.yonghuDelete != null  and params.yonghuDelete != '' ">
+                and yonghu.yonghu_delete = #{params.yonghuDelete}
+            </if>
+        </where>
+        order by a.${params.sort} ${params.order}
+    </select>
+
+</mapper>

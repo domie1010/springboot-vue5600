@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.dao.XuqiutongjiDao">
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        a.id as id
+        ,a.zhiyaunzhe_id as zhiyaunzheId
+        ,a.xuqiutongji_name as xuqiutongjiName
+        ,a.xuqiutongji_phone as xuqiutongjiPhone
+        ,a.xuqiutongji_address as xuqiutongjiAddress
+        ,a.xuqiutongji_content as xuqiutongjiContent
+        ,a.insert_time as insertTime
+        ,a.create_time as createTime
+    </sql>
+    <select id="selectListView" parameterType="map" resultType="com.entity.view.XuqiutongjiView" >
+        SELECT
+        <include refid="Base_Column_List" />
+        <!-- 级联表的字段 -->
+        ,zhiyaunzhe.zhiyaunzhe_name as zhiyaunzheName
+        ,zhiyaunzhe.zhiyaunzhe_photo as zhiyaunzhePhoto
+        ,zhiyaunzhe.zhiyaunzhe_phone as zhiyaunzhePhone
+        ,zhiyaunzhe.zhiyaunzhe_id_number as zhiyaunzheIdNumber
+        ,zhiyaunzhe.zhiyaunzhe_email as zhiyaunzheEmail
+        ,zhiyaunzhe.zhiyaunzhe_address as zhiyaunzheAddress
+        ,zhiyaunzhe.sex_types as sexTypes
+        ,zhiyaunzhe.zhiyaunzhe_content as zhiyaunzheContent
+        ,zhiyaunzhe.zhiyaunzhe_delete as zhiyaunzheDelete
+
+        FROM xuqiutongji  a
+        left JOIN zhiyaunzhe zhiyaunzhe ON a.zhiyaunzhe_id = zhiyaunzhe.id
+
+        <where>
+            <if test="params.ids != null">
+                and a.id in
+                <foreach item="item" index="index" collection="params.ids" open="(" separator="," close=")">
+                #{item}
+                </foreach>
+            </if>
+            <if test="params.zhiyaunzheId != null and params.zhiyaunzheId != ''">
+                and (
+                    a.zhiyaunzhe_id = #{params.zhiyaunzheId}
+                )
+            </if>
+            <if test=" params.xuqiutongjiName != '' and params.xuqiutongjiName != null and params.xuqiutongjiName != 'null' ">
+                and a.xuqiutongji_name like CONCAT('%',#{params.xuqiutongjiName},'%')
+            </if>
+            <if test=" params.xuqiutongjiPhone != '' and params.xuqiutongjiPhone != null and params.xuqiutongjiPhone != 'null' ">
+                and a.xuqiutongji_phone like CONCAT('%',#{params.xuqiutongjiPhone},'%')
+            </if>
+            <if test=" params.xuqiutongjiAddress != '' and params.xuqiutongjiAddress != null and params.xuqiutongjiAddress != 'null' ">
+                and a.xuqiutongji_address like CONCAT('%',#{params.xuqiutongjiAddress},'%')
+            </if>
+            <if test=" params.xuqiutongjiContent != '' and params.xuqiutongjiContent != null and params.xuqiutongjiContent != 'null' ">
+                and a.xuqiutongji_content like CONCAT('%',#{params.xuqiutongjiContent},'%')
+            </if>
+            <if test=" params.insertTimeStart != '' and params.insertTimeStart != null ">
+                <![CDATA[  and UNIX_TIMESTAMP(a.insert_time) >= UNIX_TIMESTAMP(#{params.insertTimeStart}) ]]>
+            </if>
+            <if test=" params.insertTimeEnd != '' and params.insertTimeEnd != null ">
+                <![CDATA[  and UNIX_TIMESTAMP(a.insert_time) <= UNIX_TIMESTAMP(#{params.insertTimeEnd}) ]]>
+            </if>
+
+                <!-- 判断自愿者的id不为空 -->
+            <if test=" params.zhiyaunzheIdNotNull != '' and params.zhiyaunzheIdNotNull != null and params.zhiyaunzheIdNotNull != 'null' ">
+                and a.zhiyaunzhe_id IS NOT NULL
+            </if>
+            <if test=" params.zhiyaunzheName != '' and params.zhiyaunzheName != null and params.zhiyaunzheName != 'null' ">
+                and zhiyaunzhe.zhiyaunzhe_name like CONCAT('%',#{params.zhiyaunzheName},'%')
+            </if>
+            <if test=" params.zhiyaunzhePhone != '' and params.zhiyaunzhePhone != null and params.zhiyaunzhePhone != 'null' ">
+                and zhiyaunzhe.zhiyaunzhe_phone like CONCAT('%',#{params.zhiyaunzhePhone},'%')
+            </if>
+            <if test=" params.zhiyaunzheIdNumber != '' and params.zhiyaunzheIdNumber != null and params.zhiyaunzheIdNumber != 'null' ">
+                and zhiyaunzhe.zhiyaunzhe_id_number like CONCAT('%',#{params.zhiyaunzheIdNumber},'%')
+            </if>
+            <if test=" params.zhiyaunzheEmail != '' and params.zhiyaunzheEmail != null and params.zhiyaunzheEmail != 'null' ">
+                and zhiyaunzhe.zhiyaunzhe_email like CONCAT('%',#{params.zhiyaunzheEmail},'%')
+            </if>
+            <if test=" params.zhiyaunzheAddress != '' and params.zhiyaunzheAddress != null and params.zhiyaunzheAddress != 'null' ">
+                and zhiyaunzhe.zhiyaunzhe_address like CONCAT('%',#{params.zhiyaunzheAddress},'%')
+            </if>
+            <if test="params.sexTypes != null  and params.sexTypes != ''">
+                and zhiyaunzhe.sex_types = #{params.sexTypes}
+            </if>
+
+            <if test=" params.zhiyaunzheContent != '' and params.zhiyaunzheContent != null and params.zhiyaunzheContent != 'null' ">
+                and zhiyaunzhe.zhiyaunzhe_content like CONCAT('%',#{params.zhiyaunzheContent},'%')
+            </if>
+            <if test="params.zhiyaunzheDeleteStart != null  and params.zhiyaunzheDeleteStart != '' ">
+                <![CDATA[  and zhiyaunzhe.zhiyaunzhe_delete >= #{params.zhiyaunzheDeleteStart}   ]]>
+            </if>
+            <if test="params.zhiyaunzheDeleteEnd != null  and params.zhiyaunzheDeleteEnd != '' ">
+                <![CDATA[  and zhiyaunzhe.zhiyaunzhe_delete <= #{params.zhiyaunzheDeleteEnd}   ]]>
+            </if>
+            <if test="params.zhiyaunzheDelete != null  and params.zhiyaunzheDelete != '' ">
+                and zhiyaunzhe.zhiyaunzhe_delete = #{params.zhiyaunzheDelete}
+            </if>
+        </where>
+        order by a.${params.sort} ${params.order}
+    </select>
+
+</mapper>

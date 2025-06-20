@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.dao.XiaoquguanliDao">
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        a.id as id
+        ,a.username as username
+        ,a.password as password
+        ,a.xiaoquguanli_name as xiaoquguanliName
+        ,a.xiaoquguanli_photo as xiaoquguanliPhoto
+        ,a.xiaoquguanli_phone as xiaoquguanliPhone
+        ,a.xiaoquguanli_id_number as xiaoquguanliIdNumber
+        ,a.xiaoquguanli_email as xiaoquguanliEmail
+        ,a.sex_types as sexTypes
+        ,a.xiaoquguanli_delete as xiaoquguanliDelete
+        ,a.create_time as createTime
+    </sql>
+    <select id="selectListView" parameterType="map" resultType="com.entity.view.XiaoquguanliView" >
+        SELECT
+        <include refid="Base_Column_List" />
+        <!-- 级联表的字段 -->
+
+        FROM xiaoquguanli  a
+
+        <where>
+            <if test="params.ids != null">
+                and a.id in
+                <foreach item="item" index="index" collection="params.ids" open="(" separator="," close=")">
+                #{item}
+                </foreach>
+            </if>
+            <if test=" params.username != '' and params.username != null and params.username != 'null' ">
+                and a.username like CONCAT('%',#{params.username},'%')
+            </if>
+            <if test=" params.password != '' and params.password != null and params.password != 'null' ">
+                and a.password like CONCAT('%',#{params.password},'%')
+            </if>
+            <if test=" params.xiaoquguanliName != '' and params.xiaoquguanliName != null and params.xiaoquguanliName != 'null' ">
+                and a.xiaoquguanli_name like CONCAT('%',#{params.xiaoquguanliName},'%')
+            </if>
+            <if test=" params.xiaoquguanliPhone != '' and params.xiaoquguanliPhone != null and params.xiaoquguanliPhone != 'null' ">
+                and a.xiaoquguanli_phone like CONCAT('%',#{params.xiaoquguanliPhone},'%')
+            </if>
+            <if test=" params.xiaoquguanliIdNumber != '' and params.xiaoquguanliIdNumber != null and params.xiaoquguanliIdNumber != 'null' ">
+                and a.xiaoquguanli_id_number like CONCAT('%',#{params.xiaoquguanliIdNumber},'%')
+            </if>
+            <if test=" params.xiaoquguanliEmail != '' and params.xiaoquguanliEmail != null and params.xiaoquguanliEmail != 'null' ">
+                and a.xiaoquguanli_email like CONCAT('%',#{params.xiaoquguanliEmail},'%')
+            </if>
+            <if test="params.sexTypes != null and params.sexTypes != ''">
+                and a.sex_types = #{params.sexTypes}
+            </if>
+            <if test="params.xiaoquguanliDeleteStart != null and params.xiaoquguanliDeleteStart != ''">
+                <![CDATA[  and a.xiaoquguanli_delete >= #{params.xiaoquguanliDeleteStart}   ]]>
+            </if>
+            <if test="params.xiaoquguanliDeleteEnd != null and params.xiaoquguanliDeleteEnd != ''">
+                <![CDATA[  and a.xiaoquguanli_delete <= #{params.xiaoquguanliDeleteEnd}   ]]>
+            </if>
+             <if test="params.xiaoquguanliDelete != null and params.xiaoquguanliDelete != ''">
+                and a.xiaoquguanli_delete = #{params.xiaoquguanliDelete}
+             </if>
+
+        </where>
+        order by a.${params.sort} ${params.order}
+    </select>
+
+</mapper>

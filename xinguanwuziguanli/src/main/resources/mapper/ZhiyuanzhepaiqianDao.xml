@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.dao.ZhiyuanzhepaiqianDao">
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        a.id as id
+        ,a.zhiyuanzhepaiqian_name as zhiyuanzhepaiqianName
+        ,a.zhiyuanzhepaiqian_types as zhiyuanzhepaiqianTypes
+        ,a.zhiyuanzhepaiqian_photo as zhiyuanzhepaiqianPhoto
+        ,a.zhiyuanzhepaiqian_time as zhiyuanzhepaiqianTime
+        ,a.zhiyaunzhe_id as zhiyaunzheId
+        ,a.zhiyuanzhepaiqian_content as zhiyuanzhepaiqianContent
+        ,a.insert_time as insertTime
+        ,a.create_time as createTime
+    </sql>
+    <select id="selectListView" parameterType="map" resultType="com.entity.view.ZhiyuanzhepaiqianView" >
+        SELECT
+        <include refid="Base_Column_List" />
+        <!-- 级联表的字段 -->
+        ,zhiyaunzhe.zhiyaunzhe_name as zhiyaunzheName
+        ,zhiyaunzhe.zhiyaunzhe_photo as zhiyaunzhePhoto
+        ,zhiyaunzhe.zhiyaunzhe_phone as zhiyaunzhePhone
+        ,zhiyaunzhe.zhiyaunzhe_id_number as zhiyaunzheIdNumber
+        ,zhiyaunzhe.zhiyaunzhe_email as zhiyaunzheEmail
+        ,zhiyaunzhe.zhiyaunzhe_address as zhiyaunzheAddress
+        ,zhiyaunzhe.sex_types as sexTypes
+        ,zhiyaunzhe.zhiyaunzhe_content as zhiyaunzheContent
+        ,zhiyaunzhe.zhiyaunzhe_delete as zhiyaunzheDelete
+
+        FROM zhiyuanzhepaiqian  a
+        left JOIN zhiyaunzhe zhiyaunzhe ON a.zhiyaunzhe_id = zhiyaunzhe.id
+
+        <where>
+            <if test="params.ids != null">
+                and a.id in
+                <foreach item="item" index="index" collection="params.ids" open="(" separator="," close=")">
+                #{item}
+                </foreach>
+            </if>
+            <if test=" params.zhiyuanzhepaiqianName != '' and params.zhiyuanzhepaiqianName != null and params.zhiyuanzhepaiqianName != 'null' ">
+                and a.zhiyuanzhepaiqian_name like CONCAT('%',#{params.zhiyuanzhepaiqianName},'%')
+            </if>
+            <if test="params.zhiyuanzhepaiqianTypes != null and params.zhiyuanzhepaiqianTypes != ''">
+                and a.zhiyuanzhepaiqian_types = #{params.zhiyuanzhepaiqianTypes}
+            </if>
+            <if test=" params.zhiyuanzhepaiqianTimeStart != '' and params.zhiyuanzhepaiqianTimeStart != null ">
+                <![CDATA[  and UNIX_TIMESTAMP(a.zhiyuanzhepaiqian_time) >= UNIX_TIMESTAMP(#{params.zhiyuanzhepaiqianTimeStart}) ]]>
+            </if>
+            <if test=" params.zhiyuanzhepaiqianTimeEnd != '' and params.zhiyuanzhepaiqianTimeEnd != null ">
+                <![CDATA[  and UNIX_TIMESTAMP(a.zhiyuanzhepaiqian_time) <= UNIX_TIMESTAMP(#{params.zhiyuanzhepaiqianTimeEnd}) ]]>
+            </if>
+            <if test="params.zhiyaunzheId != null and params.zhiyaunzheId != ''">
+                and (
+                    a.zhiyaunzhe_id = #{params.zhiyaunzheId}
+                )
+            </if>
+            <if test=" params.zhiyuanzhepaiqianContent != '' and params.zhiyuanzhepaiqianContent != null and params.zhiyuanzhepaiqianContent != 'null' ">
+                and a.zhiyuanzhepaiqian_content like CONCAT('%',#{params.zhiyuanzhepaiqianContent},'%')
+            </if>
+            <if test=" params.insertTimeStart != '' and params.insertTimeStart != null ">
+                <![CDATA[  and UNIX_TIMESTAMP(a.insert_time) >= UNIX_TIMESTAMP(#{params.insertTimeStart}) ]]>
+            </if>
+            <if test=" params.insertTimeEnd != '' and params.insertTimeEnd != null ">
+                <![CDATA[  and UNIX_TIMESTAMP(a.insert_time) <= UNIX_TIMESTAMP(#{params.insertTimeEnd}) ]]>
+            </if>
+
+                <!-- 判断自愿者的id不为空 -->
+            <if test=" params.zhiyaunzheIdNotNull != '' and params.zhiyaunzheIdNotNull != null and params.zhiyaunzheIdNotNull != 'null' ">
+                and a.zhiyaunzhe_id IS NOT NULL
+            </if>
+            <if test=" params.zhiyaunzheName != '' and params.zhiyaunzheName != null and params.zhiyaunzheName != 'null' ">
+                and zhiyaunzhe.zhiyaunzhe_name like CONCAT('%',#{params.zhiyaunzheName},'%')
+            </if>
+            <if test=" params.zhiyaunzhePhone != '' and params.zhiyaunzhePhone != null and params.zhiyaunzhePhone != 'null' ">
+                and zhiyaunzhe.zhiyaunzhe_phone like CONCAT('%',#{params.zhiyaunzhePhone},'%')
+            </if>
+            <if test=" params.zhiyaunzheIdNumber != '' and params.zhiyaunzheIdNumber != null and params.zhiyaunzheIdNumber != 'null' ">
+                and zhiyaunzhe.zhiyaunzhe_id_number like CONCAT('%',#{params.zhiyaunzheIdNumber},'%')
+            </if>
+            <if test=" params.zhiyaunzheEmail != '' and params.zhiyaunzheEmail != null and params.zhiyaunzheEmail != 'null' ">
+                and zhiyaunzhe.zhiyaunzhe_email like CONCAT('%',#{params.zhiyaunzheEmail},'%')
+            </if>
+            <if test=" params.zhiyaunzheAddress != '' and params.zhiyaunzheAddress != null and params.zhiyaunzheAddress != 'null' ">
+                and zhiyaunzhe.zhiyaunzhe_address like CONCAT('%',#{params.zhiyaunzheAddress},'%')
+            </if>
+            <if test="params.sexTypes != null  and params.sexTypes != ''">
+                and zhiyaunzhe.sex_types = #{params.sexTypes}
+            </if>
+
+            <if test=" params.zhiyaunzheContent != '' and params.zhiyaunzheContent != null and params.zhiyaunzheContent != 'null' ">
+                and zhiyaunzhe.zhiyaunzhe_content like CONCAT('%',#{params.zhiyaunzheContent},'%')
+            </if>
+            <if test="params.zhiyaunzheDeleteStart != null  and params.zhiyaunzheDeleteStart != '' ">
+                <![CDATA[  and zhiyaunzhe.zhiyaunzhe_delete >= #{params.zhiyaunzheDeleteStart}   ]]>
+            </if>
+            <if test="params.zhiyaunzheDeleteEnd != null  and params.zhiyaunzheDeleteEnd != '' ">
+                <![CDATA[  and zhiyaunzhe.zhiyaunzhe_delete <= #{params.zhiyaunzheDeleteEnd}   ]]>
+            </if>
+            <if test="params.zhiyaunzheDelete != null  and params.zhiyaunzheDelete != '' ">
+                and zhiyaunzhe.zhiyaunzhe_delete = #{params.zhiyaunzheDelete}
+            </if>
+        </where>
+        order by a.${params.sort} ${params.order}
+    </select>
+
+</mapper>
